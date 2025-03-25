@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成语接龙游戏</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .game-area {
+            margin-bottom: 20px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .history {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .history-item {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+        }
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>成语接龙</h1>
+        <div class="game-area">
+            <div class="input-area">
+                <input type="text" id="idiomInput" placeholder="请输入成语..." />
+                <button onclick="submitIdiom()">提交</button>
+                <button onclick="restartGame()">重新开始</button>
+            </div>
+            <div id="message" class="message" style="display: none;"></div>
+            <div class="history" id="history"></div>
+        </div>
+    </div>
+
+    <script>
+        // 常用成语库
+        const idioms = [
+            "一帆风顺", "万事如意", "百发百中", "春暖花开",
+            "道高一尺", "二话不说", "风和日丽", "高山流水",
+            "花好月圆", "见多识广", "开门见山", "理所当然",
+            "满载而归", "年复一年", "平安无事", "千方百计",
+            "如火如荼", "三思而行", "天长地久", "万无一失",
+            "心安理得", "一见钟情", "众所周知", "自强不息"
+        ];
+
+        let gameHistory = [];
+        let lastIdiom = "";
+
+        // 初始化游戏
+        function initGame() {
+            const randomIndex = Math.floor(Math.random() * idioms.length);
+            lastIdiom = idioms[randomIndex];
+            gameHistory = [lastIdiom];
+            updateHistory();
+            showMessage(`游戏开始！请接 "${lastIdiom.charAt(lastIdiom.length - 1)}"`, 'success');
+        }
+
+        // 提交成语
+        function submitIdiom() {
+            const input = document.getElementById('idiomInput');
+            const idiom = input.value.trim();
+
+            if (!idiom) {
+                showMessage('请输入成语！', 'error');
+                return;
+            }
+
+            if (idiom.length !== 4) {
+                showMessage('请输入四字成语！', 'error');
+                return;
+            }
+
+            const lastChar = lastIdiom.charAt(lastIdiom.length - 1);
+            if (idiom.charAt(0) !== lastChar) {
+                showMessage(`成语必须以 "${lastChar}" 开头！`, 'error');
+                return;
+            }
+
+            if (gameHistory.includes(idiom)) {
+                showMessage('该成语已经使用过了！', 'error');
+                return;
+            }
+
+            if (!idioms.includes(idiom)) {
+                showMessage('对不起，这个成语不在我们的词库中！', 'error');
+                return;
+            }
+
+            // 成功接龙
+            lastIdiom = idiom;
+            gameHistory.push(idiom);
+            updateHistory();
+            input.value = '';
+            showMessage(`接龙成功！请接 "${idiom.charAt(idiom.length - 1)}"`, 'success');
+        }
+
+        // 更新历史记录显示
+        function updateHistory() {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = gameHistory.map((idiom, index) => 
+                `<div class="history-item">${index + 1}. ${idiom}</div>`
+            ).join('');
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
+
+        // 重新开始游戏
+        function restartGame() {
+            document.getElementById('idiomInput').value = '';
+            initGame();
+        }
+
+        // 添加键盘事件
+        document.getElementById('idiomInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitIdiom();
+            }
+        });
+
+        // 初始化游戏
+        initGame();
+    </script>
+</body>
+</html>
